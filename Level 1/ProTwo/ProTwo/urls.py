@@ -1,4 +1,4 @@
-"""first_project URL Configuration
+"""ProTwo URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.1/topics/http/urls/
@@ -15,11 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from first_app import views # for this course, this is only here to link it to the index of the site
-from django.conf.urls import include
+from AppTwo import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("",views.index, name = 'index'), # this links to the `from first_app import views` code
-    path("home/",include('first_app.urls')), # if we wanted to link urls from a project to an app, we can do that here, it's cleaner to do it this way
+    path("",views.index, name = "index")
 ]
