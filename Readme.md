@@ -152,3 +152,83 @@ In order to do this though, there's some setup that needs to happen.
 2. Import your models `from <app_name>.models import <model1>,<model2>`
 3. Register your models `admin.site.register(<model1>)`
 4. Create a superuser. From the console: `python manage.py createsuperuser` and fill out the username and password
+
+### Working with forms 
+When working with forms, you can use django's built in form functionality. 
+
+You first need a `forms.py` file created in the app directory and import these packages `from django import forms`
+
+Then you need to create a new form class `class <form name>(forms.Form):`
+
+and inside of the class, put all the form components you want `<component name> = forms.<field component type>()`
+
+After that, you can input this form inside the `<body>` of your HTML page by doing this : 
+
+```html
+<form method = 'post'>
+
+{{form.as_p}}
+
+{% csrf_token %}
+```
+
+and then some sort of button to ingest it : `<input type="submit" class = "btn btn-primary" name = '' value = 'Submit'>`
+
+### Validating forms
+You can validate form fields to prevent unwanted input. You can do many things like stop bots, enforce formatting, etc
+Inside of your forms.py file, import this package `from django.core import validators`
+
+Bot Prevention
+: One way to prevent bots is to hide a form component `botcatcher = forms.CharField(required=False, widget = forms.HiddenInput)`
+: Inside your botcatcher form component, you can add the specific validation `validators = [validators.MaxLengthValidator(0)]`. The logic behind it is that if it's hidden, only a bot would try to fill out the form. Therefore, it won't successfully submit and process the form fillout because the bot filled out the form with a validation of "invalid if the field has more than 0 characters inside"
+
+Custom Validation
+: You can even validate things yourself. First thing you need to do is make a new function outside of the form class 
+``` python
+    def <validation function name>(value):
+        if <validation logic>:
+            raise forms.ValidationError("<validation message>")
+```
+
+: You can do better validation through the clean function. First you create a clean data object using `cleaner = super().clean()` and then clean each field `field = cleaner['field']` once that's clean you can validate whatever rules you want. Finally you can raise errors 
+``` python 
+    def clean(self):
+        all_clean_data = super().clean()
+        email = all_clean_data['email']
+        vemail = all_clean_data['verify_email']
+
+        if email != vemail:
+            raise forms.ValidationError("emails don't match")
+```
+
+### Storing form values to a model
+This is a little different than the notes above. What you have to do is make the model first and the form will populate all the model fields automatically. 
+
+1. Open up the `forms.py` file or make it first if you haven't yet and import the model(s) `from <app name>.models import <model>`
+    1. Create a new class naming it whatever you want the form name to be with the parameter `forms.ModelForm` so it looks like this `class <form name>(forms.ModelForm):`
+        1. Create a subclass called `Meta`
+        2. Inside add `model = <model name>`
+        3. Also, add `fields = [<field list>]` 
+            - if you want to include all fields from the model, replace the `[<field list>]` with `'__all__'`
+2. Open the `views.py` file
+    1. Import the name of the form you made in the `forms.py` file `from <app name>.forms import <form name>`
+    2. Create a new function of the page you want this form to live in `def <view name>(request)`
+    3. Make an `if` statement to catch if the form was submitted
+        - `form = <form name>(request.POST)`
+        - Then create a form object using the form you imported earlier `form = <form name>()`
+    4. Inside the `if` statement, make a second `if` statement to check if that submitted form is valid
+        - `if form.is_valid():`
+    5. If the submitted form is valid, save the form to the model `form.save(commit = True)` and go back to the pain page `return index(request)` 
+    6. If the form is invalid, you can do whatever you want, for this example, we just printed 'Invalid form' `print('form invalid')`
+    7. Finally, we'll return the page with the form.
+        - `return render(request,'<app name>/<page with form>.html',{'form':form})`
+3. Open the html page where you want the form to be
+    1. Create the form in html and set the method to 'POST' so we can track submission 
+        - `<form method = 'POST'>`
+    2. Inside the form tag, include the django template tag to call the form and make the components vertical rather than horizontal 
+        - `{{ form.as_p }}`
+    3. Inside the form tag, Include the token 
+        - `{% csrf_token %}`
+    4. Inside the form tag, Create a submit button 
+        - `<input type="submit", value = "Submit">`
+4. Now everything should be already good to go and connected, go ahead and test it is working.
