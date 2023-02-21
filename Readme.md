@@ -232,3 +232,35 @@ This is a little different than the notes above. What you have to do is make the
     4. Inside the form tag, Create a submit button 
         - `<input type="submit", value = "Submit">`
 4. Now everything should be already good to go and connected, go ahead and test it is working.
+
+### Relative URLs
+Relative URLs are good for when you want to set up a second level and interchange your apps between projects. With it, you have your urls living inside of your app which then that url file connects to the urls file in the project. 
+
+In order to do that, you must do the following:
+1. In your app folder, create a `urls.py` file
+    1. Import your views `from <app_name> import views`
+    2. Import the path and include functions from the django package `from django.urls import path,include`
+    3. Set the namespace by creating a variable called `APP_NAME` and tie it to the name of the app `app_name = '<name of your app>'`
+    4. Create your url list `urlpatterns = []` like in the project folder version and include the views you made in the views file and of those, which ones you want to live in the app directory
+2. In the project folder, modify the `urls.py` file 
+    1. Add the relative path linking both urls files to your urlpatterns list `path("<app name>/", include('<app name>.urls'))`
+3. When referencing this in your html, you gotta do these
+    1. Instead of a link in your html, you gotta use this `{% url '<variable from the APP_NAME designation>:<view_name>' %}`. Full example for an anchor tag is here: `<a href="{% url 'basic_app:other' %}">The other page</a>`
+
+### Template inheritance/extension 
+You can create html components and call them in other html files for ultimate reusability. 
+
+In order to do this, you have to set your code up with the following:
+1. In your templates folder, create a new html file that houses your inheritable html code, like a nav bar, or your entire webpage structure.. 
+2. Inside of the newly created html file, build out everything you want to be inherited across your other html files
+3. Where you want the other code from other html files to populate, write the following template tag: `{% block <block_name> %}`
+    - for `<block_name>`, you can put whatever you want, just know that it is what will be reused elsewhere
+4. Close it out with the endblock template tag `{% endblock %}`
+5. In your other html files, include only the `<!DOCTYPE html>`
+6. While still in the other html file, add the template tag that calls your inheritable code `{% extends "<app_name>/<inheritable html file name>.html" %}`
+7. Under that, put this `{% block <block_name> %}`
+8. Insert all the html you want for this page
+9. To close out the inheritable html, add `{% endblock %}`
+
+
+### Template filters
