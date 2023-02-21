@@ -264,3 +264,42 @@ In order to do this, you have to set your code up with the following:
 
 
 ### Template filters
+You can use template filters to make modifications and changes to context dictionaries right inside of the html. 
+
+There are many preset functions inside django also with the ability to make your own. 
+
+To use a prebuilt function
+: You can view all the functions here : https://docs.djangoproject.com/en/4.1/ref/templates/builtins/
+: A prerequisite to use template filters is that you must pull in a context dictionary.
+: Assuming your view has a context dictionary, you can put the following code to make a filter `{{ <dictionary_key>|<function>:<argument>}} `. A full example is like this : `{{ text|cut:'world' }}`
+
+To make your own function
+: It is best practice to make a new folder inside of your app directory called `templatetags` and put a file in there with all your template tag functions. For the udemy course that is used to make these notes, it was instructed to call the file `my_extras.py`. 
+: Inside of the template tag python file, you have to do some housekeeping before making the functions. First thing to do is import the template package from django `from django import template`
+: Next you have to create the registration object to register your newly created functions to the function library `register = template.Library()`
+: Make your function. Here's an example 
+``` python
+def cut(value,arg):
+    """
+    This cuts out all values of "arg" from the string
+    """
+    return value.astype(str).replace(arg,'')
+```
+: When you are done with your function, you have to register it to the registry object made in the previous step above. You can do so through decorators `@register.filter(name = '<function name>')`. A full example would look like this `@register.filter(name = 'cut')`.
+
+### Passwords and authentication
+** Some extra housekeeping **
+- Add a new folder to the root directory `media`. The difference between static and media is that media is content owned by the end user and static is content owned by the admin
+
+1. Install the package `bcrypt` and `django[argon2]`
+2. Add password hashers. The order matters because if one fails or isn't installed in the server, it will default down a level
+``` python 
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+    'django.contrib.auth.hashers.BCryptPasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+]
+```
+3. Inside of the password validators section, you can add more options if you like by adding the code inside of a specific rule you want to augment. `'OPTIONS':{'min_length':9}`
