@@ -303,3 +303,68 @@ PASSWORD_HASHERS = [
 ]
 ```
 3. Inside of the password validators section, you can add more options if you like by adding the code inside of a specific rule you want to augment. `'OPTIONS':{'min_length':9}`
+
+### Deployment
+There are many options to deploy your projects. Python anywhere is the service we use in the course. 
+
+In order to deploy, there are quite a few steps needed. 
+1. Create an account in pythonanywhere
+2. Set up your virtual environment 
+    1. Open the console tab
+    2. Select Bash
+    3. type `mkvirtualenv --python=python<version> <name_of_environment>`
+        - if you need to, you can see what packages are installed with `pip list`
+3. Install all of the packages you might need. 
+    - django `pip install django`
+    - pillow `pip install pillow`
+    - argon2 `pip install django[argon2]`
+    - you can validate django is installed by running this command `which django-admin.py`
+4. Get your git project `git clone <your repository>`
+    - you can type `ls` to view your directory
+5. Make your migrations 
+    - `python manage.py migrate`
+    - `python manage.py makemigrations`
+    - `python manage.py migrate`
+6. Create your superuser if you haven't yet
+    - `python manage.py createsuperuser`
+7. Set up your web app
+    1. Go to dashboard > web > add a new web app and follow instructions there
+    2. after clicking next, select `manual configuration` and select the python version you set in your virtual env
+    3. after clicking next, it will take you to the web tab, now we will modify the settings 
+    4. Go to virtualenv section and click `enter path to a virtual env` and fill out the text box
+        - `/home/<username>/.virtualenvs/<virtualenv name>`
+    5. go to code section and click `enter the path to your web app source code` and fill out the text box
+        - `/home/<username>/<git repo name>/<project name>`
+8. Modify the WSGI 
+    - Click on the path under `WSGI configuration file:` and we will modify it 
+    1. Delete all the hello world stuff
+    2. Go to django section and uncomment these items
+        - `import os`
+        - `import sys`
+        - `path`
+        - `if path` 
+    3. Modify the path variable and replace it with `/home/<username>/<git repo name>/<project name>`
+    4. Add a new line under the `if path` and put `os.chdir(path)`
+    5. Under that, put `os.environ.setdefault("DJANGO_SETTINGS_MODULE","<project name>.settings")`
+    6. Under that, put `django.setup()`
+    7. Uncomment `from django.core.wsgi import get_wsgi_application`
+    8. Uncomment `application = get_wsgi_application()`
+    9. Save
+9. Connect your static files
+    1. Go to files tab and create a new directory called `static`
+    2. In the web tab, go to the static files section
+    3. Create the connection to your admin panel static files
+        1. url : `/static/admin`
+        2. directory: `/home/<username>/.virtualenvs/<virtualenv name>/lib/python<version>/site-packages/django/contrib/admin/static/admin`
+    4. Create the connection to your main static files
+        1. url : `/static/`
+        2. directory: `/home/<username>/<repository>/<project>/static`
+10. Allow pythonanywhere to host your project
+    1. Navigate to files tab and under directories click your repo, project and modify your `settings.py` file
+        - in the file, go to the `ALLOWED HOSTS` portion of the code and add this entry to the list `<username>.pythonanywhere.com`
+        - Save
+9. Turn off debug
+    1. In `settings.py` file, find `DEBUG` and change it from `True` to `False`
+    2. Save
+10. Reload
+    1. Under web tab, click the big green button under `Reload` section
